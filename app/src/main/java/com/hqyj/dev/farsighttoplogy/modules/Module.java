@@ -26,7 +26,7 @@ public abstract class Module {
 
     private boolean threadOn = false;
 
-    private String[] toShow;
+    private String toShow = null;
 
     public Module(){
         threadOn = true;
@@ -54,6 +54,14 @@ public abstract class Module {
     }
 
     private int id;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public void setId(int id) {
         this.id = id;

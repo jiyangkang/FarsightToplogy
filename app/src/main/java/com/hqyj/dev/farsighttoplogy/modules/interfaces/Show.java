@@ -5,5 +5,5 @@ package com.hqyj.dev.farsighttoplogy.modules.interfaces;
  */
 public interface Show {
 
-    String[] setShow(byte[] datas);
+    String setShow(byte[] datas);
 }

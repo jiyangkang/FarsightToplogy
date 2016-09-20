@@ -15,28 +15,26 @@ public class TouchModule extends Module{
 
     private TouchModule(){
         super();
-        setId('T'-0x40);
+        setId('T'-0x20);
+        setName("触摸");
         show = new Show() {
             @Override
-            public String[] setShow(byte[] datas) {
-                String[] toshow;
+            public String setShow(byte[] datas) {
+                String toshow;
 
                 if (datas!=null){
                     int value = 0;
                     for (int i = 0; i < datas[1]; i++){
                         value = (value << 8) | (datas[datas[2] + i] & 0x00ff);
                     }
-                    String v = (value == 0)?"关":"开";
-                    String string1 = String.format("触摸：%s", v);
-                    String string2 = String.format("地址：%02X %02X", datas[6], datas[7]);
-                    setAddress(new byte[]{datas[6], datas[7]});
-                    String string3 = String.format("电量：%d", datas[8] & 0x00ff);
-                    toshow = new String[] {string1, string2, string3};
+                    String v = (value == 'c')?"关":"开";
+                    toshow = String.format("触摸：%s, 电量：%d", v, datas[8] & 0x00ff);
                     return toshow;
                 }
                 return null;
             }
         };
+        operate = null;
     }
 
     public static TouchModule getTouchModule (){

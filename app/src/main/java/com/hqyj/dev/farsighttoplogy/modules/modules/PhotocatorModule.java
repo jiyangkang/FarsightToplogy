@@ -11,33 +11,30 @@ import com.hqyj.dev.farsighttoplogy.modules.interfaces.Show;
  */
 @SuppressLint("DefaultLocale")
 public class PhotocatorModule extends Module{
-    private PhotocatorModule photocatorModule;
 
     private PhotocatorModule(){
         super();
         setId('P');
+        setName("光电开关");
         show = new Show() {
             @Override
-            public String[] setShow(byte[] datas) {
-                String[] toshow;
+            public String setShow(byte[] datas) {
+                String toshow;
 
                 if (datas!=null){
                     int value = 0;
                     for (int i = 0; i < datas[1]; i++){
                         value = (value << 8) | (datas[datas[2] + i] & 0x00ff);
                     }
-                    String v = value == 0?"关":"开";
+                    String v = value == 'c'?"关":"开";
 
-                    String string1 = String.format("光电开关：%s", v);
-                    String string2 = String.format("地址：%02X %02X", datas[6], datas[7]);
-                    setAddress(new byte[]{datas[6], datas[7]});
-                    String string3 = String.format("电量：%d", datas[8] & 0x00ff);
-                    toshow = new String[] {string1, string2, string3};
+                    toshow = String.format("光电开关：%s, 电量：%d", v, datas[datas[2] - 1] & 0x00ff);
                     return toshow;
                 }
                 return null;
             }
         };
+        operate = null;
     }
 
     public static PhotocatorModule getPhotocatorModule(){

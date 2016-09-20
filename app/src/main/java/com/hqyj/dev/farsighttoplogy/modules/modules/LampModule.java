@@ -14,27 +14,24 @@ import com.hqyj.dev.farsighttoplogy.tools.MathTools;
  */
 @SuppressLint("DefaultLocale")
 public class LampModule extends Module {
-    private LampModule lampModule;
+
+    private int value = 0;
 
     private LampModule() {
         super();
         setId('l');
+        setName("灯");
         show = new Show() {
             @Override
-            public String[] setShow(byte[] datas) {
-                String[] toshow;
+            public String setShow(byte[] datas) {
+                String toshow;
 
                 if (datas != null) {
-                    int value = 0;
-                    for (int i = 0; i < datas[1]; i++) {
+                    for (int i = 0; i < 1; i++) {
                         value = (value << 8) | (datas[datas[2] + i] & 0x00ff);
                     }
-                    String v = value == 0 ? "关" : "开";
-                    String string1 = String.format("灯：%s", v);
-                    String string2 = String.format("地址：%02X %02X", datas[6], datas[7]);
-                    setAddress(new byte[]{datas[6], datas[7]});
-                    String string3 = String.format("电量：%d", datas[8] & 0x00ff);
-                    toshow = new String[]{string1, string2, string3};
+                    String v = value == 'c' ? "关" : "开";
+                    toshow = String.format("灯：%s,电量：%d", v, datas[8] & 0x00ff);
                     return toshow;
                 }
                 return null;
@@ -43,43 +40,30 @@ public class LampModule extends Module {
 
         operate = new Operate() {
             @Override
-            public void sendCmd(int which) {
+            public void sendCmd() {
                 byte[] datas = getDatas();
                 if (datas != null) {
-                    byte[] send = new byte[datas.length + 1];
+                    byte[] send = new byte[datas.length];
                     System.arraycopy(datas, 0, send, 0, datas.length - 1);
                     send[1] = 0x02;
                     send[3] = 0x01;
-                    switch (which) {
-                        case 1:
-                            send[datas[datas[2]]] = 0x31;
-                            send[datas[datas[2]] + 1] = 0x01;
+                    switch (value) {
+                        case 'o':
+                            send[datas[datas[2]]] = 'c';
+                            send[datas[datas[2] + 1]] = 'a';
                             break;
-                        case 2:
-                            send[datas[datas[2]]] = 0x31;
-                            send[datas[datas[2]] + 1] = 0x02;
-                            break;
-                        case 3:
-                            send[datas[datas[2]]] = 0x31;
-                            send[datas[datas[2]] + 1] = 0x03;
-                            break;
-                        case 4:
-                            send[datas[datas[2]]] = 0x31;
-                            send[datas[datas[2]] + 1] = 0x04;
-                            break;
-                        case 5:
-                            send[datas[datas[2]]] = 0x30;
-                            send[datas[datas[2]] + 1] = 0x04;
+                        case 'c':
+                            send[datas[datas[2]]] = 'o';
+                            send[datas[datas[2] + 1]] = 'a';
                             break;
                         default:
-
                             break;
                     }
 
-                    byte[] check = new byte[datas.length];
+                    byte[] check = new byte[datas.length - 1];
                     System.arraycopy(send, 0, check, 0, check.length);
                     byte mate = MathTools.makeMate(check);
-                    send[datas.length] = mate;
+                    send[datas.length - 1] = mate;
                     try {
                         DataTools.sendToUart.put(send);
                     } catch (InterruptedException e) {
@@ -88,6 +72,8 @@ public class LampModule extends Module {
                 }
             }
         };
+
+
     }
 
     public static LampModule getLampModule() {

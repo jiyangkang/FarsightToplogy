@@ -14,6 +14,7 @@ import com.hqyj.dev.farsighttoplogy.tools.StringTools;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 /**
  * Created by jiyangkang on 2016/7/2 0002.
@@ -95,18 +96,18 @@ public class AnalysisService extends Service {
         Log.d(TAG, "analysisiData: " + bytes.size());
 
         byte[] assss = new byte[bytes.size()];
-        for (int i = 0; i < bytes.size(); i++){
+        for (int i = 0; i < bytes.size(); i++) {
             assss[i] = bytes.get(i);
         }
         Log.d(TAG, StringTools.changeIntoHexString(assss, true));
 
         int i = 0;
 
-        while (i < bytes.size()){
+        while (i < bytes.size()) {
             int b = bytes.get(i) & 0x00ff;
-            switch (status){
+            switch (status) {
                 case DataTools.HEAD:
-                    if (b == DataTools.HEAD_RECEIVE){
+                    if (b == DataTools.HEAD_RECEIVE) {
                         bufferPut = new byte[64];
                         bufferPut[DataTools.HEAD] = (byte) b;
                         status = DataTools.LENGTH;
@@ -115,45 +116,38 @@ public class AnalysisService extends Service {
                     }
                     break;
                 case DataTools.LENGTH:
-                    if (b < 0x20){
+                    if (b < 0x20) {
                         bufferPut[DataTools.LENGTH] = (byte) b;
                         l = b;
                         status = DataTools.OFFSET;
-                    }else {
+                    } else {
                         status = DataTools.HEAD;
-                        l = z =0;
+                        l = z = 0;
                     }
                     break;
                 case DataTools.OFFSET:
-                    if (b < 0x20){
+                    if (b < 0x20) {
                         bufferPut[DataTools.OFFSET] = (byte) b;
                         status = DataTools.DATA;
                         o = b;
-                    }else {
+                    } else {
                         status = DataTools.HEAD;
                         l = o = z = 0;
                     }
                     break;
                 case DataTools.DATA:
-                    bufferPut[i-z] = (byte) b;
-                    if (i-z == l + o){
-                        byte[] toSend = new byte[l+o+1];
+                    bufferPut[i - z] = (byte) b;
+                    if (i - z == l + o) {
+                        byte[] toSend = new byte[l + o + 1];
                         System.arraycopy(bufferPut, 0, toSend, 0, toSend.length);
-                        if (MathTools.checkMata(toSend)){
-                            for (int j = 0; j < i; j++){
+                        if (MathTools.checkMata(toSend)) {
+                            for (int j = 0; j < i; j++) {
                                 bytes.remove(0);
                             }
                             i = 0;
                             status = DataTools.HEAD;
-                            int id = toSend[DataTools.DEVICETYPE] & 0x00ff;
-                            Module module;
-                            if ((module = KownModules.getKownModules().getZigbeeModuleHash().get(id)) != null){
-                                module.setValue(toSend);
-                            }else {
-                                Log.d(TAG, "analysisiData: unkown Module");
-                            }
-                            Log.d(TAG, "analysisiData: ### OK");
-                        }else {
+                            sendToModule(toSend);
+                        } else {
                             status = DataTools.HEAD;
                             Log.d(TAG, "analysisiData: ### Fail");
                         }
@@ -166,5 +160,20 @@ public class AnalysisService extends Service {
         }
         status = DataTools.HEAD;
 
+    }
+
+
+    private void sendToModule(byte[] datas) {
+        if (datas != null) {
+            int id = datas[DataTools.DEVICETYPE] & 0x00ff;
+            Module module;
+            if ((module = KownModules.getKownModules().getZigbeeModuleHash().get(id)) != null) {
+                module.setValue(datas);
+                Log.d(TAG, "analysisiData: ### OK");
+            } else {
+                Log.d(TAG, "analysisiData: unkown Module");
+            }
+
+        }
     }
 }

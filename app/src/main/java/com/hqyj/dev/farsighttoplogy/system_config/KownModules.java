@@ -2,6 +2,7 @@ package com.hqyj.dev.farsighttoplogy.system_config;
 
 
 import com.hqyj.dev.farsighttoplogy.modules.Module;
+import com.hqyj.dev.farsighttoplogy.modules.modules.BMP180Module;
 import com.hqyj.dev.farsighttoplogy.modules.modules.BeepModule;
 import com.hqyj.dev.farsighttoplogy.modules.modules.FanModule;
 import com.hqyj.dev.farsighttoplogy.modules.modules.FlameModule;
@@ -11,6 +12,7 @@ import com.hqyj.dev.farsighttoplogy.modules.modules.HeartBeatModule;
 import com.hqyj.dev.farsighttoplogy.modules.modules.InfredModule;
 import com.hqyj.dev.farsighttoplogy.modules.modules.LampModule;
 import com.hqyj.dev.farsighttoplogy.modules.modules.LightModule;
+import com.hqyj.dev.farsighttoplogy.modules.modules.Mpu9250Module;
 import com.hqyj.dev.farsighttoplogy.modules.modules.PhotocatorModule;
 import com.hqyj.dev.farsighttoplogy.modules.modules.RainfallModule;
 import com.hqyj.dev.farsighttoplogy.modules.modules.RelayModule;
@@ -25,7 +27,6 @@ import java.util.HashMap;
  */
 public class KownModules {
 
-    private KownModules kownModules;
 
     private KownModules(){
         zigbeeModuleHash = new HashMap<>();
@@ -34,12 +35,14 @@ public class KownModules {
         setZigbeeModuleHash((int) 'F', ForgModule.getForgModule());
         setZigbeeModuleHash((int) 'F' - 0x20, FlameModule.getFlameModule());
         setZigbeeModuleHash((int) 'T', TemperatureModule.getTemperatureModule());
-        setZigbeeModuleHash((int) 'H' - 0x20, HeartBeatModule.getHeartBeatModule());
+        setZigbeeModuleHash((int) 'H', HeartBeatModule.getHeartBeatModule());
         setZigbeeModuleHash((int) 'U', UltrasonicModule.getUltrasonicModule());
-        setZigbeeModuleHash((int) 'T' - 0x40, TouchModule.getTouchModule());
+        setZigbeeModuleHash((int) 'T' - 0x20, TouchModule.getTouchModule());
         setZigbeeModuleHash((int) 'P', PhotocatorModule.getPhotocatorModule());
         setZigbeeModuleHash((int) 'I', InfredModule.getInfredModule());
-        setZigbeeModuleHash((int) 'R' - 0x40, RainfallModule.getRainfallModule());
+        setZigbeeModuleHash((int) 'R' ,RainfallModule.getRainfallModule());
+        setZigbeeModuleHash((int) 'M', Mpu9250Module.getMpu9250Module());
+        setZigbeeModuleHash((int) 'B', BMP180Module.getBMP180Module());
         setZigbeeModuleHash((int) 'l', LampModule.getLampModule());
         setZigbeeModuleHash((int) 'b', BeepModule.getBeepModule());
         setZigbeeModuleHash((int) 'f', FanModule.getFanModule());
@@ -56,7 +59,6 @@ public class KownModules {
     }
 
     private HashMap<Integer, Module> zigbeeModuleHash;
-
 
     public HashMap<Integer, Module> getZigbeeModuleHash() {
         return zigbeeModuleHash;

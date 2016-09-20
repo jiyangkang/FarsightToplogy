@@ -11,31 +11,28 @@ import com.hqyj.dev.farsighttoplogy.modules.interfaces.Show;
  */
 @SuppressLint("DefaultLocale")
 public class HeartBeatModule extends Module{
-    private HeartBeatModule heartBeatModule;
 
     private HeartBeatModule(){
         super();
-        setId('H'-0x20);
+        setId('H');
+        setName("心率");
         show = new Show() {
             @Override
-            public String[] setShow(byte[] datas) {
-                String[] toshow;
+            public String setShow(byte[] datas) {
+                String toshow;
 
                 if (datas!=null){
                     int value = 0;
                     for (int i = 0; i < datas[1]; i++){
                         value = (value << 8) | (datas[datas[2] + i] & 0x00ff);
                     }
-                    String string1 = String.format("心率：%d bpm", value);
-                    String string2 = String.format("地址：%02X %02X", datas[6], datas[7]);
-                    setAddress(new byte[]{datas[6], datas[7]});
-                    String string3 = String.format("电量：%d", datas[8] & 0x00ff);
-                    toshow = new String[] {string1, string2, string3};
+                    toshow = String.format("心率：%d bpm,电量：%d", value, datas[datas[2] - 1] & 0x00ff);
                     return toshow;
                 }
                 return null;
             }
         };
+        operate = null;
     }
 
     public static HeartBeatModule getHeartBeatModule(){
