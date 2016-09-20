@@ -45,6 +45,8 @@ public class DrawPlat extends SurfaceView implements SurfaceHolder.Callback {
 
     private HashMap<Module, Integer> modules;
 
+    private HashMap<Integer, Integer>modulesId;
+
     public DrawPlat(Context context) {
         this(context, null);
     }
@@ -71,9 +73,12 @@ public class DrawPlat extends SurfaceView implements SurfaceHolder.Callback {
     }
 
 
+    /**
+     * 设置模块和显示的对应关系
+     */
     private void setModules() {
         modules = new HashMap<>();
-
+        modulesId = new HashMap<>();
         for (Object o : hashMap.entrySet()) {
             Map.Entry entry = (Map.Entry) o;
             Module module = (Module) entry.getValue();
@@ -85,13 +90,14 @@ public class DrawPlat extends SurfaceView implements SurfaceHolder.Callback {
                         for (int i = 0; i < 12; i++) {
                             if (circulars.get(i) == null) {
                                 modules.put(m, i);
-                                Circular c = new Circular(new float[]{dstRect.left + 250, dstRect.top + 35 + 36 * i}, 18, m.getName(), mPaint);
+                                Circular c = new Circular(new float[]{dstRect.left + 250, dstRect.top + dstRect.height()/24 + dstRect.height() * i / 12}, 18, m.getName(), mPaint);
                                 c.setTextToShow(toShow);
                                 c.setDisconnect(false);
                                 circulars.put(i, c);
                                 Line l = new Line(root.getCenter(), c.getCenter(), mPaint);
                                 l.setDisconnect(false);
                                 lines.put(i, l);
+                                modulesId.put(i, id);
                                 break;
                             }
                         }
@@ -111,6 +117,7 @@ public class DrawPlat extends SurfaceView implements SurfaceHolder.Callback {
                     if (modules.get(m) != null) {
                         int i = modules.get(m);
                         modules.remove(m);
+                        modulesId.remove(i);
                         circulars.get(i).setDisconnect(true);
 
                         lines.get(i).setDisconnect(true);
@@ -217,13 +224,31 @@ public class DrawPlat extends SurfaceView implements SurfaceHolder.Callback {
         threadOn = false;
     }
 
+    private Module findout(float x, float y){
+//         dstRect.top + dstRect.height()/24 + dstRect.height() * i / 12
+        if (x > dstRect.left + 250 - 18 && x < dstRect.left + 250 + 18){
+            for (int i = 0; i < 12; i++){
+                if ((y > dstRect.top+ dstRect.height() * i /12 ) && (y < dstRect.top + dstRect.height() *(i+1) /12 )){
+                    return hashMap.get(modulesId.get(i));
+                }
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float[] XY = new float[]{event.getX(), event.getY()};
+        float X = event.getX();
+        float Y = event.getY();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 break;
             case MotionEvent.ACTION_UP:
+                Module module = findout(X, Y);
+                if (module != null && module.operate != null){
+                    module.operate.sendCmd();
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 break;
